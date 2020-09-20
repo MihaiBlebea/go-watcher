@@ -12,14 +12,16 @@ import (
 
 func main() {
 
-	rootPath := *(flag.String("root", ".", "Root folder of your application"))
-	buildCmd := *(flag.String("build", "go build .", "Command to build your application"))
-	interval := *(flag.Int("interval", 5, "Interval in sec when the check for updated files should run"))
+	rootPath := flag.String("root", ".", "Root folder of your application")
+	buildCmd := flag.String("build", "go build .", "Command to build your application")
+	interval := flag.Int("interval", 5, "Interval in sec when the check for updated files should run")
 	flag.Parse()
 
-	service := snapshot.New(rootPath)
+	fmt.Printf("Watching folder: %s | Build command: %s\n", *rootPath, *buildCmd)
 
-	err := service.Watch(time.Duration(interval) * time.Second)
+	service := snapshot.New(*rootPath)
+
+	err := service.Watch(time.Duration(*interval) * time.Second)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -27,17 +29,26 @@ func main() {
 	for {
 		select {
 		case res := <-service.C:
+			fmt.Println("Updating...")
+
+			for _, f := range res.Files {
+				fmt.Printf("File changed: %s | mode %v\n", f.Path(), f.Method())
+			}
+
 			if res.Err != nil {
 				log.Fatal(err)
 			}
 
-			cmd, args := builder.ParseCmd(buildCmd)
+			fmt.Printf("Running command: %s\n", *buildCmd)
+
+			cmd, args := builder.ParseCmd(*buildCmd)
+
 			out, err := builder.RunCmd(cmd, args...)
 			if err != nil {
 				log.Fatal(err)
 			}
 
-			fmt.Printf("Building application output: %s\n", out)
+			fmt.Printf("Building output: %s\n", out)
 		}
 	}
 }

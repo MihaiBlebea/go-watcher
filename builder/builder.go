@@ -1,12 +1,15 @@
 package builder
 
 import (
+	"fmt"
 	"os/exec"
 	"strings"
 )
 
 // RunCmd runs a build command
 func RunCmd(cmd string, args ...string) (string, error) {
+
+	fmt.Println(cmd, args)
 	out, err := exec.Command(cmd, args...).Output()
 	if err != nil {
 		return "", err
@@ -23,5 +26,5 @@ func ParseCmd(cmd string) (string, []string) {
 		return parts[0], []string{}
 	}
 
-	return parts[0], parts[:len(parts)-1]
+	return parts[0], parts[1:len(parts)]
 }
