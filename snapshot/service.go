@@ -1,7 +1,6 @@
 package snapshot
 
 import (
-	"fmt"
 	"time"
 )
 
@@ -71,29 +70,19 @@ func (s *Service) Watch(interval time.Duration) error {
 		return err
 	}
 
-	// resChan := make(chan WatchResult)
-
-	// for {
 	go func() {
 		for {
 			files, err := s.ChangedFiles()
-			// if err != nil {
-			// 	fmt.Println(err)
-			// }
 			if err != nil {
 				s.C <- WatchResult{Err: err}
 			}
 
 			if len(files) > 0 {
-				fmt.Println("Sending on channel")
 				s.C <- WatchResult{Files: files}
 			}
 
-			fmt.Println("FUNNING", files, err)
 			time.Sleep(interval * time.Second)
 		}
-
-		// fmt.Println("FUNNING", files, err)
 	}()
 
 	return nil
