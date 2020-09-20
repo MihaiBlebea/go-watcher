@@ -81,7 +81,7 @@ func (s *Service) Watch(interval time.Duration) error {
 				s.C <- WatchResult{Files: files}
 			}
 
-			time.Sleep(interval * time.Second)
+			time.Sleep(interval)
 		}
 	}()
 

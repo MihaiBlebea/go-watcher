@@ -26,12 +26,18 @@ func Take(path string) (*SnapShot, error) {
 			return err
 		}
 
-		if info.IsDir() == false {
-			snap.files[path] = File{
-				path: path,
-				info: info,
-				// method: Created,
-			}
+		if info.IsDir() {
+			return nil
+		}
+
+		if isExecutable(path) {
+			return nil
+		}
+
+		snap.files[path] = File{
+			path: path,
+			info: info,
+			// method: Created,
 		}
 
 		return nil
